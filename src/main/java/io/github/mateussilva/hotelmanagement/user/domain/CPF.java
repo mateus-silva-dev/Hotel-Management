@@ -8,6 +8,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.Objects;
+
 @Embeddable
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
@@ -33,4 +35,16 @@ public class CPF {
         CPF_VALIDATOR.assertValid(value);
     }
 
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof CPF cpf)) return false;
+
+        return Objects.equals(this.value, cpf.getValue());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(this.value);
+    }
 }

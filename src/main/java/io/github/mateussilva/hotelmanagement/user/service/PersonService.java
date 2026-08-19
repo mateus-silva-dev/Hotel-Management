@@ -3,6 +3,7 @@ package io.github.mateussilva.hotelmanagement.user.service;
 import io.github.mateussilva.hotelmanagement.shared.Email;
 import io.github.mateussilva.hotelmanagement.user.controller.dto.PersonDTO;
 import io.github.mateussilva.hotelmanagement.user.controller.dto.PersonFilterDTO;
+import io.github.mateussilva.hotelmanagement.user.controller.dto.PersonUpdateDTO;
 import io.github.mateussilva.hotelmanagement.user.domain.CPF;
 import io.github.mateussilva.hotelmanagement.user.domain.Person;
 import io.github.mateussilva.hotelmanagement.user.mapper.PersonMapper;
@@ -43,6 +44,21 @@ public class PersonService {
     public Person insert(PersonDTO dto) {
         checkDataExistsInCreation(new CPF(dto.document()), new Email(dto.email()));
         Person person = mapper.toEntity(dto);
+        return repository.save(person);
+    }
+
+    @Transactional
+    public Person update(UUID uuid, PersonUpdateDTO dto) {
+        Person person = repository.findByUuid(uuid).orElseThrow(ResourceNotFoundException::new);
+        if (dto.newEmail() != null) {
+            checkEmailExists(new Email(dto.newEmail()));
+            person.updateEmail(new Email(dto.newEmail()));
+        }
+        if (dto.newPhoneNumber() != null)
+            person.updatePhoneNumber(dto.newPhoneNumber());
+        if (dto.newMobileNumber() != null)
+            person.updateMobileNumber(dto.newMobileNumber());
+
         return repository.save(person);
     }
 

@@ -16,15 +16,17 @@ import java.util.UUID;
 @Repository
 public interface PersonRepository extends JpaRepository<Person, Long> {
 
+    @Query("SELECT obj FROM Person obj JOIN FETCH obj.email WHERE obj.uuid = :uuid")
     Optional<Person> findByUuid(UUID uuid);
+
     boolean existsByEmail(Email email);
     boolean existsByDocument(CPF email);
 
-    @Query("SELECT p FROM Person p WHERE " +
-            "(:firstName IS NULL OR LOWER(p.firstName) LIKE LOWER(CONCAT('%', :firstName, '%'))) AND " +
-            "(:surname IS NULL OR LOWER(p.surname) LIKE LOWER(CONCAT('%', :surname, '%'))) AND " +
-            "(:document IS NULL OR p.document = :document) AND " +
-            "(:email IS NULL OR LOWER(p.email) = LOWER(:email))")
+    @Query("SELECT obj FROM Person obj WHERE " +
+            "(:firstName IS NULL OR LOWER(obj.firstName) LIKE LOWER(CONCAT('%', :firstName, '%'))) AND " +
+            "(:surname IS NULL OR LOWER(obj.surname) LIKE LOWER(CONCAT('%', :surname, '%'))) AND " +
+            "(:document IS NULL OR obj.document = :document) AND " +
+            "(:email IS NULL OR LOWER(obj.email) = LOWER(:email))")
     Page<Person> searchWithFilters(
             @Param("firstName") String firstName, @Param("surname") String surname, @Param("document") CPF document, @Param("email") String email,
             Pageable pageable);

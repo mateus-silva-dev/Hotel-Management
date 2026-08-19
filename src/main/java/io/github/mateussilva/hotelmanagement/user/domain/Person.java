@@ -69,6 +69,30 @@ public class Person {
     }
 
 
+    public void updateEmail(Email newEmail) {
+        requireNonNull(newEmail, EMAIL_REQUIRED_MESSAGE);
+
+        if (Objects.equals(newEmail, this.email)) return;
+        this.email = newEmail;
+    }
+
+    public void updatePhoneNumber(String newPhoneNumber) {
+        if (!isBlank(newPhoneNumber) && newPhoneNumber.length() != 10)
+            throw new InvalidPersonException(CONTACT_INVALID_FORMAT);
+
+        if (Objects.equals(newPhoneNumber, this.phoneNumber)) return;
+        this.phoneNumber = newPhoneNumber;
+    }
+
+    public void updateMobileNumber(String newMobileNumber) {
+        if (!isBlank(newMobileNumber) && newMobileNumber.length() != 11)
+            throw new InvalidPersonException(CONTACT_INVALID_FORMAT);
+
+        if (Objects.equals(newMobileNumber, this.mobileNumber)) return;
+        this.mobileNumber = newMobileNumber;
+    }
+
+
     private static void validateCreation(String firstName, String surname, CPF document, LocalDate birthDate, Email email, String phoneNumber, String mobileNumber) {
         requireText(firstName, FIRST_NAME_REQUIRED_MESSAGE, 80);
         requireText(surname, SURNAME_REQUIRED_MESSAGE, 255);

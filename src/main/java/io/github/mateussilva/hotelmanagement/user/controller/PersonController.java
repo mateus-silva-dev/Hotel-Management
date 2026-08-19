@@ -2,6 +2,7 @@ package io.github.mateussilva.hotelmanagement.user.controller;
 
 import io.github.mateussilva.hotelmanagement.user.controller.dto.PersonDTO;
 import io.github.mateussilva.hotelmanagement.user.controller.dto.PersonFilterDTO;
+import io.github.mateussilva.hotelmanagement.user.controller.dto.PersonUpdateDTO;
 import io.github.mateussilva.hotelmanagement.user.domain.Person;
 import io.github.mateussilva.hotelmanagement.user.mapper.PersonMapper;
 import io.github.mateussilva.hotelmanagement.user.service.PersonService;
@@ -31,8 +32,8 @@ public class PersonController {
         this.mapper = mapper;
     }
 
-    @GetMapping("/{personUUID}")
-    public ResponseEntity<PersonDTO> findByUuid(@PathVariable("personUUID") UUID uuid) {
+    @GetMapping("/{uuid}")
+    public ResponseEntity<PersonDTO> findByUuid(@PathVariable UUID uuid) {
         Person person = service.findByUuid(uuid);
         return ResponseEntity.ok(mapper.toDTO(person));
     }
@@ -58,5 +59,11 @@ public class PersonController {
                 .buildAndExpand(person.getUuid())
                 .toUri();
         return ResponseEntity.created(uri).body(personDTO);
+    }
+
+    @PatchMapping("/{uuid}")
+    public ResponseEntity<PersonDTO> update(@PathVariable UUID uuid, @Valid @RequestBody PersonUpdateDTO dto) {
+        Person person = service.update(uuid, dto);
+        return ResponseEntity.ok(mapper.toDTO(person));
     }
 }
