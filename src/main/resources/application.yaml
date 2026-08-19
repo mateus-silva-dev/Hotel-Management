@@ -1,3 +1,15 @@
 spring:
   application:
     name: Hotel-Management
+
+  jpa:
+    open-in-view: true
+
+  profiles:
+    active: ${APP_PROFILE:test}
+
+  security:
+    client-id: ${CLIENT_ID}
+    client-secret: ${CLIENT_SECRET}
+    jwt:
+      duration: ${JWT_DURATION}

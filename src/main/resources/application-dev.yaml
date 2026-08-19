@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: Hotel-Management
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: ${DB_DEV_URL}
+    username: ${DB_DEV_USER}
+    password: ${DB_DEV_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
