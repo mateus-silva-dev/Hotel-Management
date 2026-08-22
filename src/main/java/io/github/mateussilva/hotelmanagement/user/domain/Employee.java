@@ -1,6 +1,8 @@
 package io.github.mateussilva.hotelmanagement.user.domain;
 
+import io.github.mateussilva.hotelmanagement.shared.doc.Generated;
 import io.github.mateussilva.hotelmanagement.user.domain.enums.StatusEmployee;
+import io.github.mateussilva.hotelmanagement.shared.exception.BusinessRulesException;
 import io.github.mateussilva.hotelmanagement.user.domain.exception.InvalidEmployeeException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -25,10 +27,8 @@ public class Employee {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
     private UUID uuid;
 
-    @Column(unique = true)
     private String registrationCode;
 
     private LocalDate hireDate;
@@ -41,6 +41,7 @@ public class Employee {
     private String jobTitle;
 
 
+    @Generated
     private Employee(String registrationCode, LocalDate hireDate, String jobTitle) {
         validateCreation(registrationCode, hireDate, jobTitle);
         this.uuid = UUID.randomUUID();
@@ -75,6 +76,7 @@ public class Employee {
     }
 
 
+    @Generated
     @Override
     public final boolean equals(Object o) {
         if (!(o instanceof Employee employee)) return false;
@@ -82,6 +84,7 @@ public class Employee {
         return Objects.equals(getUuid(), employee.getUuid());
     }
 
+    @Generated
     @Override
     public int hashCode() {
         return Objects.hashCode(getUuid());

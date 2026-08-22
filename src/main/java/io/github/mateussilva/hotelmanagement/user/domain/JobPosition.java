@@ -1,7 +1,7 @@
 package io.github.mateussilva.hotelmanagement.user.domain;
 
+import io.github.mateussilva.hotelmanagement.shared.doc.Generated;
 import io.github.mateussilva.hotelmanagement.user.domain.exception.InvalidJobPositionException;
-import io.github.mateussilva.hotelmanagement.user.domain.exception.InvalidPersonException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -30,7 +30,7 @@ public class JobPosition {
 
     private boolean active = true;
 
-
+    @Generated
     private JobPosition(String name) {
         this.uuid = UUID.randomUUID();
 
@@ -45,6 +45,7 @@ public class JobPosition {
     }
 
 
+    @Generated
     @Override
     public final boolean equals(Object o) {
         if (!(o instanceof JobPosition that)) return false;
@@ -52,6 +53,7 @@ public class JobPosition {
         return Objects.equals(getUuid(), that.getUuid());
     }
 
+    @Generated
     @Override
     public int hashCode() {
         return Objects.hashCode(getUuid());

@@ -1,4 +1,4 @@
-package io.github.mateussilva.hotelmanagement.user.service.exception;
+package io.github.mateussilva.hotelmanagement.shared.exception;
 
 public class ResourceNotFoundException extends RuntimeException {
 

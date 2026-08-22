@@ -1,5 +1,6 @@
 package io.github.mateussilva.hotelmanagement.shared;
 
+import io.github.mateussilva.hotelmanagement.shared.doc.Generated;
 import io.github.mateussilva.hotelmanagement.shared.exception.InvalidEmailException;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
@@ -31,6 +32,7 @@ public class Email {
     }
 
 
+    @Generated
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof Email email)) return false;
@@ -38,6 +40,7 @@ public class Email {
         return Objects.equals(this.value, email.getValue());
     }
 
+    @Generated
     @Override
     public int hashCode() {
         return Objects.hashCode(this.value);

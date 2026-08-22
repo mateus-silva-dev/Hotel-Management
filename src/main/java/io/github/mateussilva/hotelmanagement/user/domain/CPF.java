@@ -2,6 +2,7 @@ package io.github.mateussilva.hotelmanagement.user.domain;
 
 import br.com.caelum.stella.validation.CPFValidator;
 import br.com.caelum.stella.validation.InvalidStateException;
+import io.github.mateussilva.hotelmanagement.shared.doc.Generated;
 import io.github.mateussilva.hotelmanagement.user.domain.exception.InvalidDocumentException;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
@@ -18,6 +19,7 @@ public class CPF {
     private static final CPFValidator CPF_VALIDATOR = new CPFValidator();
 
     private String value;
+
 
     public CPF(String value) {
         if (value == null || value.isBlank())
@@ -36,6 +38,7 @@ public class CPF {
     }
 
 
+    @Generated
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof CPF cpf)) return false;
@@ -43,6 +46,7 @@ public class CPF {
         return Objects.equals(this.value, cpf.getValue());
     }
 
+    @Generated
     @Override
     public int hashCode() {
         return Objects.hashCode(this.value);

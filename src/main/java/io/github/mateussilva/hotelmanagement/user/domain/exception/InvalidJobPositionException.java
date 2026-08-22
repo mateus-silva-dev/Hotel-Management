@@ -1,6 +1,8 @@
 package io.github.mateussilva.hotelmanagement.user.domain.exception;
 
-public class InvalidJobPositionException extends RuntimeException {
+import io.github.mateussilva.hotelmanagement.shared.exception.BusinessRulesException;
+
+public class InvalidJobPositionException extends BusinessRulesException {
 
     public InvalidJobPositionException(String message) {
         super(message);

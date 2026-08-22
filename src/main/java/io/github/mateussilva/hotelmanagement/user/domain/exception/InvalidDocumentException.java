@@ -1,6 +1,8 @@
 package io.github.mateussilva.hotelmanagement.user.domain.exception;
 
-public class InvalidDocumentException extends RuntimeException {
+import io.github.mateussilva.hotelmanagement.shared.exception.BusinessRulesException;
+
+public class InvalidDocumentException extends BusinessRulesException {
 
     public InvalidDocumentException(String message) {
         super(message);

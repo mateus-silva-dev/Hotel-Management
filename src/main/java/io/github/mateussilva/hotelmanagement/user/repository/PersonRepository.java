@@ -1,6 +1,5 @@
 package io.github.mateussilva.hotelmanagement.user.repository;
 
-import io.github.mateussilva.hotelmanagement.shared.Email;
 import io.github.mateussilva.hotelmanagement.user.domain.CPF;
 import io.github.mateussilva.hotelmanagement.user.domain.Person;
 import org.springframework.data.domain.Page;
@@ -18,9 +17,6 @@ public interface PersonRepository extends JpaRepository<Person, Long> {
 
     @Query("SELECT obj FROM Person obj JOIN FETCH obj.email WHERE obj.uuid = :uuid")
     Optional<Person> findByUuid(UUID uuid);
-
-    boolean existsByEmail(Email email);
-    boolean existsByDocument(CPF email);
 
     @Query("SELECT obj FROM Person obj WHERE " +
             "(:firstName IS NULL OR LOWER(obj.firstName) LIKE LOWER(CONCAT('%', :firstName, '%'))) AND " +
