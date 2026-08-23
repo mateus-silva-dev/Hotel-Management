@@ -46,7 +46,7 @@ public class PersonService {
 
     @Transactional
     public Person update(UUID uuid, PersonUpdateDTO dto) {
-        Person person = repository.findByUuid(uuid).orElseThrow(ResourceNotFoundException::new);
+        Person person = findByUuid(uuid);
 
         if (dto.newEmail() != null) {
             Email email = new Email(dto.newEmail());
@@ -54,6 +54,7 @@ public class PersonService {
         }
         if (dto.newPhoneNumber() != null)
             person.updatePhoneNumber(dto.newPhoneNumber());
+
         if (dto.newMobileNumber() != null)
             person.updateMobileNumber(dto.newMobileNumber());
 
