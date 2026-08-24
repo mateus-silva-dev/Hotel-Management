@@ -32,6 +32,8 @@
         <org.mapstruct.version>1.6.3</org.mapstruct.version>
 
         <argLine></argLine>
+        <surefireArgLine></surefireArgLine>
+        <failsafeArgLine></failsafeArgLine>
     </properties>
     <dependencies>
         <dependency>
