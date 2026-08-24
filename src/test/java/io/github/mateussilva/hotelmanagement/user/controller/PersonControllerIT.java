@@ -81,11 +81,11 @@ public class PersonControllerIT {
             @Test
             @DisplayName("Should return a 400 - When UUID is malformed")
             void invalidUuidIsMalformed() {
-                String uuidMalformed = "1ace1347-2f4a-4db9-88e7-36d2bac76a8";
+                String malformedUuid = "invalid-uuid";
 
                 given()
                             .contentType("application/json")
-                            .pathParam("uuid", uuidMalformed)
+                            .pathParam("uuid", malformedUuid)
                         .when()
                             .get("/{uuid}")
                         .then()
