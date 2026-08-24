@@ -12,6 +12,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.util.HtmlUtils;
 
 @SuppressWarnings("JvmTaintAnalysis")
@@ -77,5 +78,12 @@ public class ControllerExceptionHandler {
                 .body(CustomError.of(status.value(), "O corpo da requisição possui um formato JSON inválido ou malformado", request.getRequestURI()));
     }
 
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<CustomError> methodArgumentTypeMismatch(MethodArgumentTypeMismatchException e, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        return ResponseEntity
+                .status(status)
+                .body(CustomError.of(status.value(), "Parâmetro informado possui formato inválido", request.getRequestURI()));
+    }
 
 }
