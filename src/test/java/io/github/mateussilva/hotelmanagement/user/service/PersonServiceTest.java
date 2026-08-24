@@ -40,7 +40,7 @@ import static org.mockito.Mockito.*;
 
 @DisplayName("Testing the service layer of the Person class")
 @ExtendWith(MockitoExtension.class)
-public class UserServiceTest implements DomainAssertions {
+public class PersonServiceTest implements DomainAssertions {
 
     private static final String NOT_FOUND_MESSAGE = "Recurso não encontrado";
     private static final String EMAIL_INVALID_MESSAGE = "Email inválido";

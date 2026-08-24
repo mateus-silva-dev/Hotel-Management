@@ -3,9 +3,12 @@ package io.github.mateussilva.hotelmanagement.shared.handlers;
 import io.github.mateussilva.hotelmanagement.shared.exception.BusinessRulesException;
 import io.github.mateussilva.hotelmanagement.shared.exception.ResourceNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
+import org.aspectj.apache.bcel.classfile.Code;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -48,14 +51,14 @@ public class ControllerExceptionHandler {
 
         return ResponseEntity
                 .status(status)
-                .body(CustomError.of(status.value(), "Erro de integridade de dados.", request.getRequestURI()));
+                .body(CustomError.of(status.value(), "Erro de integridade de dados", request.getRequestURI()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<CustomError> argumentNotValidation(MethodArgumentNotValidException e, HttpServletRequest request) {
         return ResponseEntity
                 .unprocessableContent()
-                .body(CustomError.validation("Erro de validação nos campos enviados.", request.getRequestURI(), e.getBindingResult()));
+                .body(CustomError.validation("Erro de validação nos campos enviados", request.getRequestURI(), e.getBindingResult()));
     }
 
     @ExceptionHandler(BusinessRulesException.class)
@@ -64,6 +67,14 @@ public class ControllerExceptionHandler {
         return ResponseEntity
                 .status(status)
                 .body(CustomError.of(status.value(), e.getMessage(), request.getRequestURI()));
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<CustomError> httpMessageNotReadable(HttpMessageNotReadableException e, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        return ResponseEntity
+                .status(status)
+                .body(CustomError.of(status.value(), "O corpo da requisição possui um formato JSON inválido ou malformado", request.getRequestURI()));
     }
 
 
