@@ -16,7 +16,7 @@ spring:
     show-sql: true
 
     hibernate:
-      ddl-auto: none
+      ddl-auto: validate
 
     properties:
       hibernate:
@@ -26,3 +26,15 @@ spring:
     locations:
       - classpath:db/migration
       - classpath:db/test-migration
+
+springdoc:
+  swagger-ui:
+    path: /docs-hotelmanagement.html
+  api-docs:
+    path: /api-hotelmanagement
+
+docflow:
+  title: Hotel Management API
+  version: 1.0.0
+  description: Hotel Management is a backend REST API designed to support the core operations of a hotel chain.
+  default-error-schema: io.github.mateussilva.hotelmanagement.shared.handlers.CustomError

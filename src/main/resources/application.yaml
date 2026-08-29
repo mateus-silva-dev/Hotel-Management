@@ -13,3 +13,7 @@ spring:
     client-secret: ${CLIENT_SECRET}
     jwt:
       duration: ${JWT_DURATION}
+
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: true
