@@ -7,8 +7,9 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "spring")
 public interface JobPositionMapper {
 
-    JobPositionDTO toDTO(JobPosition entity);
     default JobPosition toEntity(JobPositionDTO dto) {
         return JobPosition.of(dto.name());
     }
+
+    JobPositionDTO toDTO(JobPosition entity);
 }

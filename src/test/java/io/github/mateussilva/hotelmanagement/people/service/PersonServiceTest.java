@@ -1,6 +1,7 @@
 package io.github.mateussilva.hotelmanagement.people.service;
 
-import io.github.mateussilva.hotelmanagement.people.controller.dto.person.PersonDTO;
+import io.github.mateussilva.hotelmanagement.people.controller.dto.person.PersonCreateDTO;
+import io.github.mateussilva.hotelmanagement.people.domain.CPF;
 import io.github.mateussilva.hotelmanagement.people.projections.PersonDetailsProjection;
 import io.github.mateussilva.hotelmanagement.people.projections.PersonMinProjection;
 import io.github.mateussilva.hotelmanagement.shared.exception.InvalidEmailException;
@@ -54,16 +55,16 @@ public class PersonServiceTest implements DomainAssertions {
     @InjectMocks
     private PersonService service;
 
-    @Spy
-    private PersonMapper mapper = Mappers.getMapper(PersonMapper.class);
+    @Mock
+    private PersonMapper mapper;
 
     private final UUID uuidFake = UUID.randomUUID();
     private Person personFake;
-    private PersonDetailsProjection projectionFake;
+    private PersonDetailsProjection projectionDetailsFake;
 
     @BeforeEach
     void setUp() {
-        projectionFake = mock(PersonDetailsProjection.class);
+        projectionDetailsFake = mock(PersonDetailsProjection.class);
         personFake = PersonBuilder.aPerson().withUuid(uuidFake).build();
     }
 
@@ -78,16 +79,14 @@ public class PersonServiceTest implements DomainAssertions {
             @Test
             @DisplayName("Given a valid UUID, it should successfully return a Person")
             void validFindByUuid() {
-                when(repository.findDetailsByUuid(uuidFake)).thenReturn(Optional.of(projectionFake));
+                when(repository.findDetailsByUuid(uuidFake))
+                        .thenReturn(Optional.of(projectionDetailsFake));
 
-                var person = service.findByUuid(uuidFake);
+                var person = service.findDetailsByUuid(uuidFake);
 
-                assertThat(person)
-                        .isNotNull()
-                        .satisfies(p -> {
-                            assertThat(p.getUuid()).isEqualTo(uuidFake);
-                            assertThat(p.getFirstName()).isNotEmpty();
-                        });
+                assertThat(person).isSameAs(projectionDetailsFake);
+
+                verify(repository).findDetailsByUuid(uuidFake);
             }
 
             @Test
@@ -98,20 +97,17 @@ public class PersonServiceTest implements DomainAssertions {
                 String name = faker.name().firstName();
                 String surname = faker.name().lastName();
                 String email = faker.internet().emailAddress();
+                CPF document = new CPF(faker.cpf().valid());
 
-                var filterFake = new PersonFilterDTO(name, surname, email);
+                var filterFake = new PersonFilterDTO(name, surname, email, document);
 
                 PersonMinProjection projectionFake = mock(PersonMinProjection.class);
 
-                when(projectionFake.getFirstName()).thenReturn(name);
-                when(projectionFake.getSurname()).thenReturn(surname);
-                when(projectionFake.getEmail()).thenReturn(email);
-
                 Page<PersonMinProjection> mockPage = new PageImpl<>(List.of(projectionFake), pageable, 1);
 
-                when(repository.findAllMinWithFilters(name, surname, email, pageable)).thenReturn(mockPage);
+                when(repository.findAllMinWithFilters(name, surname, email, document, pageable)).thenReturn(mockPage);
 
-                Page<PersonMinProjection> resultPage = service.findAll(filterFake, pageable);
+                Page<PersonMinProjection> resultPage = service.findAllMin(filterFake, pageable);
 
                 assertThat(resultPage).isNotNull().hasSize(1);
                 assertThat(resultPage.getContent().getFirst()).isEqualTo(projectionFake);
@@ -129,7 +125,7 @@ public class PersonServiceTest implements DomainAssertions {
                 when(repository.findDetailsByUuid(uuidFake)).thenReturn(Optional.empty());
 
                 assertThatException(
-                        () -> service.findByUuid(uuidFake),
+                        () -> service.findDetailsByUuid(uuidFake),
                         ResourceNotFoundException.class, NOT_FOUND_MESSAGE
                 );
             }
@@ -149,23 +145,18 @@ public class PersonServiceTest implements DomainAssertions {
             @Test
             @DisplayName("Given a valid Person, it should successfully register it")
             void validRegister() {
-                var personDtoFake = new PersonDTO(null, "Vera",  "Giovanna Cavalcante",
-                        "638.858.233-81", LocalDate.of(1999, Month.MAY, 10), "vera@email.com",
-                        "1144448888", "11911112222");
+                PersonCreateDTO dto = mock(PersonCreateDTO.class);
+                Person person = mock(Person.class);
 
-                when(repository.save(any(Person.class))).thenAnswer(i -> i.getArgument(0));
+                when(mapper.toEntity(dto)).thenReturn(person);
+                when(repository.save(person)).thenReturn(person);
 
-                Person result = service.insert(personDtoFake);
+                Person result = service.create(dto);
 
-                assertThat(result)
-                        .isNotNull()
-                        .satisfies(p -> {
-                            assertThat(p.getUuid()).isNotNull();
-                            assertThat(p.getFirstName()).isEqualTo("Vera");
-                            assertThat(p.getSurname()).isEqualTo("Giovanna Cavalcante");
-                        });
+                assertThat(result).isSameAs(person);
 
-                verify(repository, times(1)).save(any(Person.class));
+                verify(mapper).toEntity(dto);
+                verify(repository).save(person);
             }
 
         }
@@ -177,12 +168,13 @@ public class PersonServiceTest implements DomainAssertions {
             @Test
             @DisplayName("Given invalid data, an exception must be thrown when attempting to register a person")
             void invalidRegister() {
-                var personDtoFake = new PersonDTO(null, null, null, "638.858.233-81", null, "vera@email.com", null, null);
+                PersonCreateDTO dto = mock(PersonCreateDTO.class);
 
-                assertThatThrownBy(() -> service.insert(personDtoFake))
-                        .isInstanceOf(InvalidPersonException.class);
+                when(mapper.toEntity(dto)).thenThrow(new InvalidPersonException("Dados inválidos"));
 
-                verify(repository, never()).save(any(Person.class));
+                assertThatThrownBy(() -> service.create(dto)).isInstanceOf(InvalidPersonException.class);
+
+                verify(repository, never()).save(any());
             }
 
         }
@@ -341,6 +333,64 @@ public class PersonServiceTest implements DomainAssertions {
                 );
 
                 verify(repository, never()).save(any(Person.class));
+            }
+
+        }
+
+    }
+
+    @Nested
+    @DisplayName("Find or create people")
+    class FindOrCreate {
+
+        @Nested
+        @DisplayName("Scenario for success")
+        class Success {
+
+            @Test
+            @DisplayName("Should return an existing Person when document is already registered")
+            void findOrCreateExistingPerson() {
+                PersonCreateDTO dto = mock(PersonCreateDTO.class);
+
+                when(dto.document()).thenReturn("38497862856");
+                when(repository.findByDocument(any(CPF.class)))
+                        .thenReturn(Optional.of(personFake));
+
+                Person result = service.findOrCreate(dto);
+
+                assertThat(result).isSameAs(personFake);
+
+                verify(repository).findByDocument(any(CPF.class));
+                verify(repository, never()).save(any());
+                verify(mapper, never()).toEntity(any());
+            }
+
+        }
+
+        @Nested
+        @DisplayName("Failure scenario")
+        class Failure {
+
+            @Test
+            @DisplayName("Should create a Person when document is not registered")
+            void findOrCreateNewPerson() {
+                PersonCreateDTO dto = mock(PersonCreateDTO.class);
+                Person newPerson = PersonBuilder.aPerson().build();
+
+                when(dto.document()).thenReturn(newPerson.getDocument().getValue());
+
+                when(repository.findByDocument(any(CPF.class))).thenReturn(Optional.empty());
+
+                when(mapper.toEntity(dto)).thenReturn(newPerson);
+                when(repository.save(newPerson)).thenReturn(newPerson);
+
+                Person result = service.findOrCreate(dto);
+
+                assertThat(result).isSameAs(newPerson);
+
+                verify(repository).findByDocument(any(CPF.class));
+                verify(mapper).toEntity(dto);
+                verify(repository).save(newPerson);
             }
 
         }

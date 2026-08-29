@@ -20,6 +20,25 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     @Query("SELECT obj FROM Employee obj WHERE obj.uuid = :uuid")
     Optional<Employee> findEntityByUuid(UUID uuid);
 
+    @Query(value = """
+    SELECT
+        e.uuid              AS uuid,
+        p.firstName         AS firstName,
+        p.surname           AS surname,
+        e.registrationCode  AS registrationCode,
+        e.status            AS status
+    FROM Employee e
+    JOIN e.person p
+    WHERE (:firstName IS NULL OR LOWER(p.firstName) LIKE LOWER(CONCAT('%', :firstName, '%')))
+          AND (:surname IS NULL OR LOWER(p.surname) LIKE LOWER(CONCAT('%', :surname, '%')))
+          AND (:registrationCode IS NULL OR e.registrationCode = :registrationCode)
+          AND (:status IS NULL OR e.status = :status)
+    """)
+    Page<EmployeeMinProjection> findAllMinWithFilters(
+            @Param("firstName") String firstName, @Param("surname") String surname, @Param("registrationCode") String registrationCode,
+            @Param("status")StatusEmployee status, Pageable pageable
+    );
+
     @Query("""
     SELECT
         e.uuid              AS uuid,
@@ -40,23 +59,4 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     WHERE e.uuid = :uuid
     """)
     Optional<EmployeeDetailsProjection> findDetailsByUuid(UUID uuid);
-
-    @Query(value = """
-    SELECT
-        e.uuid              AS uuid,
-        p.firstName         AS firstName,
-        p.surname           AS surname,
-        e.registrationCode  AS registrationCode,
-        e.status            AS status
-    FROM Employee e
-    JOIN e.person p
-    WHERE (:firstName IS NULL OR LOWER(p.firstName) LIKE LOWER(CONCAT('%', :firstName, '%')))
-          AND (:surname IS NULL OR LOWER(p.surname) LIKE LOWER(CONCAT('%', :surname, '%')))
-          AND (:registrationCode IS NULL OR e.registrationCode = :registrationCode)
-          AND (:status IS NULL OR e.status = :status)
-    """)
-    Page<EmployeeMinProjection> findAllMinWithFilters(
-            @Param("firstName") String firstName, @Param("surname") String surname, @Param("registrationCode") String registrationCode,
-            @Param("status")StatusEmployee status, Pageable pageable
-    );
 }

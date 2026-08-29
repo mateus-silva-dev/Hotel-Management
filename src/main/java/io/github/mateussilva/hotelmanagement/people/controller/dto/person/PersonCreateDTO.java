@@ -5,7 +5,7 @@ import org.hibernate.validator.constraints.br.CPF;
 
 import java.time.LocalDate;
 
-public record PersonDTO(
+public record PersonCreateDTO(
         String uuid,
 
         @NotBlank(message = "Campo requerido")

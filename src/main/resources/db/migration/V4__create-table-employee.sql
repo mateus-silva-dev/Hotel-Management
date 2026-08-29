@@ -1,4 +1,5 @@
 CREATE TABLE tb_employee (
+    version       BIGINT NOT NULL DEFAULT 0,
     id                BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     uuid              UUID          NOT NULL,
     registration_code VARCHAR(20)   NOT NULL,

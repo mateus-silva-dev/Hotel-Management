@@ -1,10 +1,10 @@
 package io.github.mateussilva.hotelmanagement.people.service;
 
+import io.github.mateussilva.hotelmanagement.people.controller.dto.person.PersonCreateDTO;
 import io.github.mateussilva.hotelmanagement.people.domain.CPF;
 import io.github.mateussilva.hotelmanagement.people.projections.PersonDetailsProjection;
 import io.github.mateussilva.hotelmanagement.people.projections.PersonMinProjection;
 import io.github.mateussilva.hotelmanagement.shared.Email;
-import io.github.mateussilva.hotelmanagement.people.controller.dto.person.PersonDTO;
 import io.github.mateussilva.hotelmanagement.people.controller.dto.person.PersonFilterDTO;
 import io.github.mateussilva.hotelmanagement.people.controller.dto.person.PersonUpdateDTO;
 import io.github.mateussilva.hotelmanagement.people.domain.Person;
@@ -31,19 +31,19 @@ public class PersonService {
     }
 
     @Transactional(readOnly = true)
-    public PersonDetailsProjection findByUuid(UUID uuid) {
+    public PersonDetailsProjection findDetailsByUuid(UUID uuid) {
         return repository.findDetailsByUuid(uuid)
                 .orElseThrow(ResourceNotFoundException::new);
     }
 
     @Transactional(readOnly = true)
-    public Page<PersonMinProjection> findAll(PersonFilterDTO filter, Pageable pageable) {
+    public Page<PersonMinProjection> findAllMin(PersonFilterDTO filter, Pageable pageable) {
         return repository.findAllMinWithFilters(
-                filter.firstName(), filter.surname(), filter.email(), pageable);
+                filter.firstName(), filter.surname(), filter.email(), filter.document(), pageable);
     }
 
     @Transactional
-    public Person insert(PersonDTO dto) {
+    public Person create(PersonCreateDTO dto) {
         return repository.save(mapper.toEntity(dto));
     }
 
@@ -65,7 +65,8 @@ public class PersonService {
         return repository.save(person);
     }
 
-    public Person findOrCreate(PersonDTO dto) {
+    @Transactional
+    public Person findOrCreate(PersonCreateDTO dto) {
         CPF cpf = new CPF(dto.document());
 
         return repository.findByDocument(cpf)

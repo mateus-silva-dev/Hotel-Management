@@ -29,6 +29,9 @@ public class Person {
     private static final String CONTACT_REQUIRED_MESSAGE = "Informe um número de telefone ou celular";
     private static final String CONTACT_INVALID_FORMAT = "Formato do contato inválido";
 
+    @Version
+    private Long version;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -59,9 +62,6 @@ public class Person {
     @Column
     private String mobileNumber;
 
-    @OneToOne(mappedBy = "person")
-    private Employee employee;
-
 
     @Generated
     private Person(String firstName, String surname, CPF document, LocalDate birthDate, Email email, String phoneNumber, String mobileNumber) {
@@ -87,29 +87,38 @@ public class Person {
 
     public void updateEmail(Email newEmail) {
         requireNonNull(newEmail, EMAIL_REQUIRED_MESSAGE);
-        if (Objects.equals(newEmail, this.email)) return;
+
+        if (Objects.equals(newEmail, this.email))
+            return;
+
         this.email = newEmail;
     }
 
     public void updatePhoneNumber(String newPhoneNumber) {
         String cleanedPhoneNumber = cleanNumber(newPhoneNumber);
 
-        if (isBlank(cleanedPhoneNumber) && this.mobileNumber == null)
+        checkPhoneNumber(cleanedPhoneNumber);
+
+        if (Objects.equals(newPhoneNumber, this.phoneNumber))
+            return;
+
+        if (cleanedPhoneNumber == null && this.mobileNumber == null)
             throw new InvalidPersonException(CONTACT_REQUIRED_MESSAGE);
 
-        checkPhoneNumber(cleanedPhoneNumber);
-        if (Objects.equals(cleanedPhoneNumber, this.phoneNumber)) return;
         this.phoneNumber = cleanedPhoneNumber;
     }
 
     public void updateMobileNumber(String newMobileNumber) {
         String cleanedMobileNumber = cleanNumber(newMobileNumber);
 
-        if (isBlank(cleanedMobileNumber) && this.phoneNumber == null)
+        checkMobileNumber(cleanedMobileNumber);
+
+        if (cleanedMobileNumber == null && this.phoneNumber == null)
             throw new InvalidPersonException(CONTACT_REQUIRED_MESSAGE);
 
-        checkMobileNumber(cleanedMobileNumber);
-        if (Objects.equals(cleanedMobileNumber, this.mobileNumber)) return;
+        if (Objects.equals(cleanedMobileNumber, this.mobileNumber))
+            return;
+
         this.mobileNumber = cleanedMobileNumber;
     }
 
@@ -121,7 +130,7 @@ public class Person {
         requireNonNull(birthDate, BIRTH_DATE_REQUIRED_MESSAGE);
         requireNonNull(email, EMAIL_REQUIRED_MESSAGE);
 
-        if (isBlank(phoneNumber) && isBlank(mobileNumber))
+        if (phoneNumber == null && mobileNumber == null)
             throw new InvalidPersonException(CONTACT_REQUIRED_MESSAGE);
 
         checkPhoneNumber(phoneNumber);
@@ -129,7 +138,12 @@ public class Person {
     }
 
     private static String cleanNumber(String number) {
-        return number != null ? number.replaceAll("\\D", "") : null;
+        if (number == null)
+            return null;
+
+        String cleaned = number.replaceAll("\\D", "");
+
+        return cleaned.isBlank() ? null : cleaned;
     }
 
     private static void requireText(String value, String message, int maxLength) {

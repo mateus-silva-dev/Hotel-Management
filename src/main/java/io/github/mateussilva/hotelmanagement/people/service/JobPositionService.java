@@ -24,33 +24,29 @@ public class JobPositionService {
     }
 
     @Transactional(readOnly = true)
-    public JobPosition findByUuid(UUID uuid) {
+    public JobPosition findDetailsByUuid(UUID uuid) {
         return repository.findEntityByUuid(uuid)
                 .orElseThrow(ResourceNotFoundException::new);
     }
 
     @Transactional(readOnly = true)
-    public Page<JobPosition> findAll(Pageable pageable) {
+    public Page<JobPosition> findAllDetails(Pageable pageable) {
         return repository.findAll(pageable);
     }
 
     @Transactional
-    public JobPosition insert(JobPositionDTO dto) {
-        JobPosition job = mapper.toEntity(dto);
-        repository.save(job);
-        return job;
+    public JobPosition create(JobPositionDTO dto) {
+        return repository.save(mapper.toEntity(dto));
     }
 
     @Transactional
     public void activate(UUID uuid) {
-        JobPosition job = findEntityByUuidOrThrow(uuid);
-        job.activate();
+        findEntityByUuidOrThrow(uuid).activate();
     }
 
     @Transactional
     public void deactivate(UUID uuid) {
-        JobPosition job = findEntityByUuidOrThrow(uuid);
-        job.deactivate();
+        findEntityByUuidOrThrow(uuid).deactivate();
     }
 
     private JobPosition findEntityByUuidOrThrow(UUID uuid) {

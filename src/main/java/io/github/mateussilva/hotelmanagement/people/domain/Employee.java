@@ -27,6 +27,9 @@ public class Employee {
     private static final String HOTEL_REQUIRED_MESSAGE = "O hotel deve ser informado";
     private static final String JOB_POSITION_REQUIRED_MESSAGE = "O cargo deve ser informado";
 
+    @Version
+    private Long version;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -86,7 +89,8 @@ public class Employee {
 
     public void changeJobPosition(JobPosition newJobPosition) {
         requireNonNull(jobPosition, JOB_POSITION_REQUIRED_MESSAGE);
-        if (Objects.equals(newJobPosition, this.jobPosition)) return;
+        if (Objects.equals(newJobPosition, this.jobPosition))
+            return;
         this.jobPosition = newJobPosition;
     }
 

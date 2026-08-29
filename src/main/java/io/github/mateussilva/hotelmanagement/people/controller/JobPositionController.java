@@ -30,25 +30,26 @@ public class JobPositionController {
     }
 
     @GetMapping("/{uuid}")
-    public ResponseEntity<JobPositionDTO> findByUuid(@PathVariable UUID uuid) {
-        JobPosition job = service.findByUuid(uuid);
-        return ResponseEntity.ok(mapper.toDTO(job));
+    public ResponseEntity<JobPositionDTO> findByUuid(
+            @PathVariable UUID uuid
+    ) {
+        return ResponseEntity.ok(mapper.toDTO(service.findDetailsByUuid(uuid)));
     }
 
     @GetMapping
     public ResponseEntity<PagedModel<EntityModel<JobPositionDTO>>> findAll(
             Pageable pageable,
-            PagedResourcesAssembler<JobPositionDTO> assembler) {
-
-        Page<JobPositionDTO> page = service.findAll(pageable)
-                .map(mapper::toDTO);
+            PagedResourcesAssembler<JobPositionDTO> assembler
+    ) {
+        Page<JobPositionDTO> page = service.findAllDetails(pageable).map(mapper::toDTO);
         return ResponseEntity.ok(assembler.toModel(page));
     }
 
     @PostMapping
-    public ResponseEntity<JobPositionDTO> insert(@Valid @RequestBody JobPositionDTO dto) {
-        JobPosition job = service.insert(dto);
-        JobPositionDTO jobDTO = mapper.toDTO(job);
+    public ResponseEntity<JobPositionDTO> insert(
+            @Valid @RequestBody JobPositionDTO dto
+    ) {
+        JobPositionDTO jobDTO = mapper.toDTO(service.create(dto));
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{uuid}")
                 .buildAndExpand(dto.uuid())

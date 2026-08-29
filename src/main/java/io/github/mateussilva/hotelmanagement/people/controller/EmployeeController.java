@@ -2,13 +2,8 @@ package io.github.mateussilva.hotelmanagement.people.controller;
 
 import io.github.mateussilva.hotelmanagement.people.controller.assembler.EmployeeDetailsModelAssembler;
 import io.github.mateussilva.hotelmanagement.people.controller.assembler.EmployeeMinModelAssembler;
-import io.github.mateussilva.hotelmanagement.people.controller.dto.employee.EmployeeDTO;
-import io.github.mateussilva.hotelmanagement.people.controller.dto.employee.EmployeeDetailsDTO;
-import io.github.mateussilva.hotelmanagement.people.controller.dto.employee.EmployeeMinDTO;
-import io.github.mateussilva.hotelmanagement.people.controller.dto.employee.EmployeeFilterDTO;
-import io.github.mateussilva.hotelmanagement.people.domain.Employee;
+import io.github.mateussilva.hotelmanagement.people.controller.dto.employee.*;
 import io.github.mateussilva.hotelmanagement.people.mapper.EmployeeMapper;
-import io.github.mateussilva.hotelmanagement.people.projections.EmployeeDetailsProjection;
 import io.github.mateussilva.hotelmanagement.people.projections.EmployeeMinProjection;
 import io.github.mateussilva.hotelmanagement.people.service.EmployeeService;
 import jakarta.validation.Valid;
@@ -42,9 +37,10 @@ public class EmployeeController {
     }
 
     @GetMapping("/{uuid}")
-    public ResponseEntity<EntityModel<EmployeeDetailsDTO>> findByUuid(@PathVariable UUID uuid) {
-        EmployeeDetailsProjection employee = service.findByUuid(uuid);
-        EmployeeDetailsDTO employeeDTO = mapper.toDetailsDTO(employee);
+    public ResponseEntity<EntityModel<EmployeeDetailsDTO>> findByUuid(
+            @PathVariable UUID uuid
+    ) {
+        EmployeeDetailsDTO employeeDTO = mapper.toDetailsDTO(service.findDetailsByUuid(uuid));
         EntityModel<EmployeeDetailsDTO> model = modelDetailsAssembler.toModel(employeeDTO);
         return ResponseEntity.ok(model);
     }
@@ -55,19 +51,20 @@ public class EmployeeController {
             Pageable pageable,
             PagedResourcesAssembler<EmployeeMinDTO> assembler) {
 
-        Page<EmployeeMinProjection> employees = service.findAll(filter, pageable);
+        Page<EmployeeMinProjection> employees = service.findAllMin(filter, pageable);
         Page<EmployeeMinDTO> page = employees.map(mapper::toMinDTO);
         PagedModel<EntityModel<EmployeeMinDTO>> model = assembler.toModel(page, modelAssembler);
         return ResponseEntity.ok(model);
     }
 
     @PostMapping
-    public ResponseEntity<EmployeeDTO> insert(@Valid @RequestBody EmployeeDTO dto) {
-        Employee employee = service.insert(dto);
-        EmployeeDTO employeeDTO = mapper.toDTO(employee);
+    public ResponseEntity<EmployeeDetailsDTO> insert(
+            @Valid @RequestBody EmployeeCreateDTO dto
+    ) {
+        EmployeeDetailsDTO employeeDTO = mapper.toDetailsDTO(service.create(dto));
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{uuid}")
-                .buildAndExpand(employee.getUuid())
+                .buildAndExpand(employeeDTO.uuid())
                 .toUri();
         return ResponseEntity.created(uri).body(employeeDTO);
     }

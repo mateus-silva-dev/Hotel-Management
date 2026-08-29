@@ -126,7 +126,6 @@ public class PersonControllerIT {
                             .statusCode(200)
                             .body("content[0].firstName", equalTo("Maria"))
                             .body("content[0].surname", equalTo("Ferreira Pereira"))
-                            .body("content[0].birthDate", equalTo("1962-07-19"))
                             .body("content[0].email", equalTo("maria@email.com"));
             }
 
@@ -142,7 +141,6 @@ public class PersonControllerIT {
                             .statusCode(200)
                             .body("content[0].firstName", equalTo("Maria"))
                             .body("content[0].surname", equalTo("Ferreira Pereira"))
-                            .body("content[0].document", equalTo("42957390060"))
                             .body("content[0].email", equalTo("maria@email.com"));
             }
 
@@ -158,7 +156,6 @@ public class PersonControllerIT {
                             .statusCode(200)
                             .body("content[0].firstName", equalTo("Otávio"))
                             .body("content[0].surname", equalTo("César Ian Martins"))
-                            .body("content[0].document", equalTo("18257746843"))
                             .body("content[0].email", equalTo("otavio@email.com"));
             }
 
@@ -174,7 +171,6 @@ public class PersonControllerIT {
                             .statusCode(200)
                             .body("content[0].firstName", equalTo("Otávio"))
                             .body("content[0].surname", equalTo("César Ian Martins"))
-                            .body("content[0].document", equalTo("18257746843"))
                             .body("content[0].email", equalTo("otavio@email.com"));
             }
 

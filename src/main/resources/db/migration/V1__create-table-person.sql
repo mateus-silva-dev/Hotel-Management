@@ -1,4 +1,5 @@
 CREATE TABLE tb_person (
+    version       BIGINT NOT NULL DEFAULT 0,
     id            BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     uuid          UUID         NOT NULL,
     first_name    VARCHAR(80)  NOT NULL,

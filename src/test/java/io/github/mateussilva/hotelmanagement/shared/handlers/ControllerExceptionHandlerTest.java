@@ -1,6 +1,7 @@
 package io.github.mateussilva.hotelmanagement.shared.handlers;
 
-import io.github.mateussilva.hotelmanagement.people.controller.dto.person.PersonDTO;
+import io.github.mateussilva.hotelmanagement.people.controller.assembler.PersonMinModelAssembler;
+import io.github.mateussilva.hotelmanagement.people.controller.dto.person.PersonCreateDTO;
 import io.github.mateussilva.hotelmanagement.shared.exception.BusinessRulesException;
 import io.github.mateussilva.hotelmanagement.shared.exception.ResourceNotFoundException;
 import io.github.mateussilva.hotelmanagement.people.controller.PersonController;
@@ -42,6 +43,9 @@ public class ControllerExceptionHandlerTest {
     @MockitoBean
     private PersonMapper mapper;
 
+    @MockitoBean
+    private PersonMinModelAssembler personMinModelAssembler;
+
     private UUID uuid;
 
     @BeforeEach
@@ -65,7 +69,7 @@ public class ControllerExceptionHandlerTest {
     @DisplayName("Should return 500 when an unexpected exception occurs")
     void shouldReturn500ForGenericException() throws Exception {
 
-        when(service.findByUuid(uuid))
+        when(service.findDetailsByUuid(uuid))
                 .thenThrow(new RuntimeException("Unexpected error"));
 
         mockMvc.perform(get("/api/v1/people/{uuid}", uuid))
@@ -76,7 +80,7 @@ public class ControllerExceptionHandlerTest {
     @Test
     @DisplayName("Should return 404 when resource is not found")
     void shouldReturn404ForResourceNotFound() throws Exception {
-        when(service.findByUuid(uuid))
+        when(service.findDetailsByUuid(uuid))
                 .thenThrow(new ResourceNotFoundException());
 
         mockMvc.perform(get("/api/v1/people/{uuid}", uuid))
@@ -87,7 +91,7 @@ public class ControllerExceptionHandlerTest {
     @Test
     @DisplayName("Should return 422 when a business rule is violated")
     void shouldReturn422ForBusinessRule() throws Exception {
-        when(service.findByUuid(uuid))
+        when(service.findDetailsByUuid(uuid))
                 .thenThrow(new BusinessRulesException("Regra de negócio inválida"));
 
         mockMvc.perform(get("/api/v1/people/{uuid}", uuid))
@@ -137,7 +141,7 @@ public class ControllerExceptionHandlerTest {
     @DisplayName("Should return 409 when a data integrity violation occurs")
     void shouldReturn409ForDataIntegrityViolation() throws Exception {
 
-        when(service.insert(any(PersonDTO.class)))
+        when(service.create(any(PersonCreateDTO.class)))
                 .thenThrow(new DataIntegrityViolationException("Erro de integridade de dados"));
 
         mockMvc.perform(post("/api/v1/people")
@@ -152,7 +156,7 @@ public class ControllerExceptionHandlerTest {
         DataIntegrityViolationException exception =
                 new DataIntegrityViolationException("Integrity violation", new RuntimeException("Violation of constraint UK_PERSON_EMAIL"));
 
-        when(service.insert(any(PersonDTO.class)))
+        when(service.create(any(PersonCreateDTO.class)))
                 .thenThrow(exception);
 
         mockMvc.perform(post("/api/v1/people")
@@ -169,7 +173,7 @@ public class ControllerExceptionHandlerTest {
         DataIntegrityViolationException exception =
                 new DataIntegrityViolationException("Integrity violation", new RuntimeException("Violation of constraint UK_PERSON_DOCUMENT"));
 
-        when(service.insert(any(PersonDTO.class)))
+        when(service.create(any(PersonCreateDTO.class)))
                 .thenThrow(exception);
 
         mockMvc.perform(post("/api/v1/people")
@@ -177,5 +181,22 @@ public class ControllerExceptionHandlerTest {
                                 .content(VALID_PERSON_JSON))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.error").value("Este documento já está cadastrado"));
+    }
+
+    @Test
+    @DisplayName("Should return 409 when job position name unique constraint is violated")
+    void shouldReturn409ForDuplicatedJobPositionName() throws Exception {
+
+        DataIntegrityViolationException exception =
+                new DataIntegrityViolationException("Integrity violation", new RuntimeException("Violation of constraint UK_JOB_POSITION_NAME"));
+
+        when(service.create(any(PersonCreateDTO.class)))
+                .thenThrow(exception);
+
+        mockMvc.perform(post("/api/v1/people")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(VALID_PERSON_JSON))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.error").value("Este cargo já está cadastrado"));
     }
 }

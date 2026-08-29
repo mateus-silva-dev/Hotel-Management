@@ -1,7 +1,7 @@
 package io.github.mateussilva.hotelmanagement.people.mapper;
 
 import io.github.mateussilva.hotelmanagement.hotel.domain.Hotel;
-import io.github.mateussilva.hotelmanagement.people.controller.dto.employee.EmployeeDTO;
+import io.github.mateussilva.hotelmanagement.people.controller.dto.employee.EmployeeCreateDTO;
 import io.github.mateussilva.hotelmanagement.people.controller.dto.employee.EmployeeDetailsDTO;
 import io.github.mateussilva.hotelmanagement.people.controller.dto.employee.EmployeeMinDTO;
 import io.github.mateussilva.hotelmanagement.people.controller.dto.person.PersonDetailsDTO;
@@ -11,15 +11,13 @@ import io.github.mateussilva.hotelmanagement.people.domain.JobPosition;
 import io.github.mateussilva.hotelmanagement.people.domain.Person;
 import io.github.mateussilva.hotelmanagement.people.projections.EmployeeDetailsProjection;
 import io.github.mateussilva.hotelmanagement.people.projections.EmployeeMinProjection;
-import io.github.mateussilva.hotelmanagement.shared.Email;
-import io.github.mateussilva.hotelmanagement.shared.mapper.ValueObjectMapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring", uses = PersonMapper.class)
 public interface EmployeeMapper {
 
-    default Employee toEntity(Person person, Hotel hotel, JobPosition jobPosition, String registrationCode, EmployeeDTO dto) {
+    default Employee toEntity(Person person, Hotel hotel, JobPosition jobPosition, String registrationCode, EmployeeCreateDTO dto) {
         return Employee.of(
                 person, hotel, jobPosition, registrationCode, dto.hireDate()
         );
@@ -27,9 +25,11 @@ public interface EmployeeMapper {
 
     @Mapping(target = "jobPosition", source = "jobPosition.uuid")
     @Mapping(target = "hotel", source = "hotel.uuid")
-    EmployeeDTO toDTO(Employee entity);
+    EmployeeCreateDTO toDTO(Employee entity);
 
     EmployeeMinDTO toMinDTO(EmployeeMinProjection projection);
+
+    EmployeeDetailsDTO toDetailsDTO(Employee entity);
 
     default EmployeeDetailsDTO toDetailsDTO(EmployeeDetailsProjection projection) {
         if (projection == null) {

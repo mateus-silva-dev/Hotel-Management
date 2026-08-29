@@ -18,7 +18,7 @@ public class PersonMinModelAssembler implements RepresentationModelAssembler<Per
                 dto,
                 linkTo(
                         methodOn(PersonController.class)
-                                .findByUuid(dto.uuid())
+                                .findDetailsByUuid(dto.uuid())
                 ).withSelfRel()
         );
     }

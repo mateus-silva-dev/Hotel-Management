@@ -21,17 +21,12 @@ public class EmployeeRegistrationCodeGenerator {
         Long hotelId = hotel.getId();
         int year = hireDate.getYear();
 
-        Optional<EmployeeRegistrationSequence> existingSequence = repository.findForUpdate(hotelId, year);
+        EmployeeRegistrationSequence sequence =
+                repository.findForUpdate(hotelId, year)
+                        .orElseGet(() -> repository.save(
+                                EmployeeRegistrationSequence.of(hotelId, year)));
 
-        long number;
-
-        if (existingSequence.isPresent())
-            number = existingSequence.get().next();
-        else {
-            EmployeeRegistrationSequence sequence = EmployeeRegistrationSequence.of(hotelId, year);
-            number = sequence.next();
-            repository.save(sequence);
-        }
+        long number = sequence.next();
 
         return "%02d-%d-%04d".formatted(hotelId, year, number);
     }

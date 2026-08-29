@@ -2,9 +2,7 @@ package io.github.mateussilva.hotelmanagement.people.controller;
 
 import io.github.mateussilva.hotelmanagement.people.controller.assembler.PersonMinModelAssembler;
 import io.github.mateussilva.hotelmanagement.people.controller.dto.person.*;
-import io.github.mateussilva.hotelmanagement.people.domain.Person;
 import io.github.mateussilva.hotelmanagement.people.mapper.PersonMapper;
-import io.github.mateussilva.hotelmanagement.people.projections.PersonDetailsProjection;
 import io.github.mateussilva.hotelmanagement.people.projections.PersonMinProjection;
 import io.github.mateussilva.hotelmanagement.people.service.PersonService;
 import jakarta.validation.Valid;
@@ -35,37 +33,41 @@ public class PersonController {
     }
 
     @GetMapping("/{uuid}")
-    public ResponseEntity<PersonDetailsDTO> findByUuid(@PathVariable UUID uuid) {
-        PersonDetailsProjection person = service.findByUuid(uuid);
-        return ResponseEntity.ok(mapper.toDetailsDTO(person));
+    public ResponseEntity<PersonDetailsDTO> findDetailsByUuid(
+            @PathVariable UUID uuid
+    ) {
+        return ResponseEntity.ok(mapper.toDetailsDTO(service.findDetailsByUuid(uuid)));
     }
 
     @GetMapping
-    public ResponseEntity<PagedModel<EntityModel<PersonMinDTO>>> findAll(
+    public ResponseEntity<PagedModel<EntityModel<PersonMinDTO>>> findAllMin(
             PersonFilterDTO filter,
             Pageable pageable,
-            PagedResourcesAssembler<PersonMinDTO> assembler) {
-
-        Page<PersonMinProjection> people = service.findAll(filter, pageable);
+            PagedResourcesAssembler<PersonMinDTO> assembler
+    ) {
+        Page<PersonMinProjection> people = service.findAllMin(filter, pageable);
         Page<PersonMinDTO> page = people.map(mapper::toMinDTO);
         PagedModel<EntityModel<PersonMinDTO>> model = assembler.toModel(page, modelAssembler);
         return ResponseEntity.ok(model);
     }
 
     @PostMapping
-    public ResponseEntity<PersonDTO> insert(@RequestBody @Valid PersonDTO dto) {
-        Person person = service.insert(dto);
-        PersonDTO personDTO = mapper.toDTO(person);
+    public ResponseEntity<PersonDetailsDTO> create(
+            @RequestBody @Valid PersonCreateDTO dto
+    ) {
+        PersonDetailsDTO personDTO = mapper.toDetailsDTO(service.create(dto));
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{uuid}")
-                .buildAndExpand(person.getUuid())
+                .buildAndExpand(personDTO.uuid())
                 .toUri();
         return ResponseEntity.created(uri).body(personDTO);
     }
 
     @PatchMapping("/{uuid}")
-    public ResponseEntity<PersonDTO> update(@PathVariable UUID uuid, @RequestBody @Valid PersonUpdateDTO dto) {
-        Person person = service.update(uuid, dto);
-        return ResponseEntity.ok(mapper.toDTO(person));
+    public ResponseEntity<PersonDetailsDTO> update(
+            @PathVariable UUID uuid,
+            @RequestBody @Valid PersonUpdateDTO dto
+    ) {
+        return ResponseEntity.ok(mapper.toDetailsDTO(service.update(uuid, dto)));
     }
 }

@@ -20,6 +20,25 @@ public interface PersonRepository extends JpaRepository<Person, Long> {
     @Query("SELECT obj FROM Person obj WHERE obj.uuid = :uuid")
     Optional<Person> findEntityByUuid(UUID uuid);
 
+    @Query("SELECT obj FROM Person obj WHERE obj.document = :document")
+    Optional<Person> findByDocument(CPF document);
+
+    @Query("""
+    SELECT
+        p.uuid                AS uuid,
+        p.firstName           AS firstName,
+        p.surname             AS surname,
+        p.email.value         AS email
+    FROM Person p
+    WHERE (:firstName IS NULL OR LOWER(p.firstName) LIKE LOWER(CONCAT('%', :firstName, '%'))) 
+        AND (:surname IS NULL OR LOWER(p.surname) LIKE LOWER(CONCAT('%', :surname, '%'))) 
+        AND (:email IS NULL OR LOWER(p.email) = LOWER(:email))
+        AND (:document IS NULL OR p.document = :document)
+    """)
+    Page<PersonMinProjection> findAllMinWithFilters(
+            @Param("firstName") String firstName, @Param("surname") String surname, @Param("email") String email, @Param("document") CPF document,
+            Pageable pageable);
+
     @Query("""
     SELECT
         obj.uuid                   AS uuid,
@@ -34,22 +53,4 @@ public interface PersonRepository extends JpaRepository<Person, Long> {
     WHERE obj.uuid = :uuid
     """)
     Optional<PersonDetailsProjection> findDetailsByUuid(UUID uuid);
-
-    @Query("""
-    SELECT
-        p.uuid                AS uuid,
-        p.firstName           AS firstName,
-        p.surname             AS surname,
-        p.email.value         AS email
-    FROM Person p
-    WHERE (:firstName IS NULL OR LOWER(p.firstName) LIKE LOWER(CONCAT('%', :firstName, '%'))) 
-        AND (:surname IS NULL OR LOWER(p.surname) LIKE LOWER(CONCAT('%', :surname, '%'))) 
-        AND (:email IS NULL OR LOWER(p.email) = LOWER(:email))
-    """)
-    Page<PersonMinProjection> findAllMinWithFilters(
-            @Param("firstName") String firstName, @Param("surname") String surname, @Param("email") String email,
-            Pageable pageable);
-
-    @Query("SELECT obj FROM Person obj WHERE obj.document = :document")
-    Optional<Person> findByDocument(CPF document);
 }

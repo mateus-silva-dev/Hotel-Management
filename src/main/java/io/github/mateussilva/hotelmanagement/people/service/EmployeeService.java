@@ -2,8 +2,7 @@ package io.github.mateussilva.hotelmanagement.people.service;
 
 import io.github.mateussilva.hotelmanagement.hotel.HotelLookup;
 import io.github.mateussilva.hotelmanagement.hotel.domain.Hotel;
-import io.github.mateussilva.hotelmanagement.hotel.service.HotelService;
-import io.github.mateussilva.hotelmanagement.people.controller.dto.employee.EmployeeDTO;
+import io.github.mateussilva.hotelmanagement.people.controller.dto.employee.EmployeeCreateDTO;
 import io.github.mateussilva.hotelmanagement.people.controller.dto.employee.EmployeeFilterDTO;
 import io.github.mateussilva.hotelmanagement.people.domain.Employee;
 import io.github.mateussilva.hotelmanagement.people.domain.JobPosition;
@@ -19,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -42,52 +40,47 @@ public class EmployeeService {
     }
 
     @Transactional(readOnly = true)
-    public EmployeeDetailsProjection findByUuid(UUID uuid) {
+    public EmployeeDetailsProjection findDetailsByUuid(UUID uuid) {
         return repository.findDetailsByUuid(uuid)
                 .orElseThrow(ResourceNotFoundException::new);
     }
 
     @Transactional(readOnly = true)
-    public Page<EmployeeMinProjection> findAll(EmployeeFilterDTO filter, Pageable pageable) {
+    public Page<EmployeeMinProjection> findAllMin(EmployeeFilterDTO filter, Pageable pageable) {
         return repository.findAllMinWithFilters(
                 filter.firstName(), filter.surname(), filter.registrationCode(), filter.status(), pageable);
     }
 
     @Transactional
-    public Employee insert(EmployeeDTO dto) {
+    public Employee create(EmployeeCreateDTO dto) {
         Person person = personService.findOrCreate(dto.person());
-        JobPosition job = jobPositionService.findByUuid(dto.jobPosition());
+        JobPosition job = jobPositionService.findDetailsByUuid(dto.jobPosition());
         Hotel hotel = hotelLookup.findEntityByUuid(dto.hotel());
 
         String registrationCode = registrationCodeGenerator.generate(hotel, dto.hireDate());
-        Employee employee = mapper.toEntity(person, hotel, job, registrationCode, dto);
-        repository.save(employee);
-        return employee;
+        return repository.save(mapper.toEntity(person, hotel, job, registrationCode, dto));
     }
 
     @Transactional
     public void updateJobPosition(UUID uuid, UUID uuidNewJobPosition) {
         Employee employee = findEntityByUuidOrThrow(uuid);
-        JobPosition job = jobPositionService.findByUuid(uuidNewJobPosition);
+        JobPosition job = jobPositionService.findDetailsByUuid(uuidNewJobPosition);
         employee.changeJobPosition(job);
     }
 
     @Transactional
     public void activate(UUID uuid) {
-        Employee employee = findEntityByUuidOrThrow(uuid);
-        employee.activate();
+        findEntityByUuidOrThrow(uuid).activate();
     }
 
     @Transactional
     public void putOnLeave(UUID uuid) {
-        Employee employee = findEntityByUuidOrThrow(uuid);
-        employee.putOnLeave();
+        findEntityByUuidOrThrow(uuid).putOnLeave();
     }
 
     @Transactional
     public void terminate(UUID uuid, LocalDate dismissalDate) {
-        Employee employee = findEntityByUuidOrThrow(uuid);
-        employee.terminate(dismissalDate);
+        findEntityByUuidOrThrow(uuid).terminate(dismissalDate);
     }
 
     private Employee findEntityByUuidOrThrow(UUID uuid) {

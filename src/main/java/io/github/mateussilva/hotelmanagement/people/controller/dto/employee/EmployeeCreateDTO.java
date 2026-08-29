@@ -1,16 +1,16 @@
 package io.github.mateussilva.hotelmanagement.people.controller.dto.employee;
 
-import io.github.mateussilva.hotelmanagement.people.controller.dto.person.PersonDTO;
+import io.github.mateussilva.hotelmanagement.people.controller.dto.person.PersonCreateDTO;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 
 import java.time.LocalDate;
 import java.util.UUID;
 
-public record EmployeeDTO(
+public record EmployeeCreateDTO(
         @NotNull(message = "Campo requerido")
         @Valid
-        PersonDTO person,
+        PersonCreateDTO person,
 
         @NotNull(message = "Campo requerido")
         LocalDate hireDate,
