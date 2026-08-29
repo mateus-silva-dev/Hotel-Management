@@ -1,11 +1,11 @@
 package io.github.mateussilva.hotelmanagement.shared.handlers;
 
+import io.github.mateussilva.hotelmanagement.people.controller.dto.person.PersonDTO;
 import io.github.mateussilva.hotelmanagement.shared.exception.BusinessRulesException;
 import io.github.mateussilva.hotelmanagement.shared.exception.ResourceNotFoundException;
-import io.github.mateussilva.hotelmanagement.user.controller.PersonController;
-import io.github.mateussilva.hotelmanagement.user.controller.dto.PersonDTO;
-import io.github.mateussilva.hotelmanagement.user.mapper.PersonMapper;
-import io.github.mateussilva.hotelmanagement.user.service.PersonService;
+import io.github.mateussilva.hotelmanagement.people.controller.PersonController;
+import io.github.mateussilva.hotelmanagement.people.mapper.PersonMapper;
+import io.github.mateussilva.hotelmanagement.people.service.PersonService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
