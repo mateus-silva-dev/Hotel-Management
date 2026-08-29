@@ -1,13 +1,15 @@
-package io.github.mateussilva.hotelmanagement.user.domain;
+package io.github.mateussilva.hotelmanagement.people.domain;
 
 import io.github.mateussilva.hotelmanagement.shared.doc.Generated;
-import io.github.mateussilva.hotelmanagement.user.domain.exception.InvalidJobPositionException;
+import io.github.mateussilva.hotelmanagement.people.domain.exception.InvalidJobPositionException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -30,6 +32,9 @@ public class JobPosition {
 
     private boolean active = true;
 
+    @OneToMany(mappedBy = "jobPosition")
+    private Set<Employee> employees = new HashSet<>();
+
     @Generated
     private JobPosition(String name) {
         this.uuid = UUID.randomUUID();
@@ -42,6 +47,15 @@ public class JobPosition {
 
     public static JobPosition of(String name) {
         return new JobPosition(name);
+    }
+
+
+    public void activate() {
+        this.active = true;
+    }
+
+    public void deactivate() {
+        this.active = false;
     }
 
 

@@ -1,9 +1,8 @@
-package io.github.mateussilva.hotelmanagement.user.domain.builder;
+package io.github.mateussilva.hotelmanagement.people.domain.builder;
 
 import io.github.mateussilva.hotelmanagement.shared.Email;
-import io.github.mateussilva.hotelmanagement.user.domain.CPF;
-import io.github.mateussilva.hotelmanagement.user.domain.Person;
-import jakarta.persistence.*;
+import io.github.mateussilva.hotelmanagement.people.domain.CPF;
+import io.github.mateussilva.hotelmanagement.people.domain.Person;
 import lombok.Getter;
 import net.datafaker.Faker;
 import org.springframework.test.util.ReflectionTestUtils;

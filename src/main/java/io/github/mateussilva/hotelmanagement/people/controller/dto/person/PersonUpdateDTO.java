@@ -1,4 +1,4 @@
-package io.github.mateussilva.hotelmanagement.user.controller.dto;
+package io.github.mateussilva.hotelmanagement.people.controller.dto.person;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;

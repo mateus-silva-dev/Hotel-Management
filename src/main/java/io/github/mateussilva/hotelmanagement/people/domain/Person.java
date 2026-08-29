@@ -1,8 +1,8 @@
-package io.github.mateussilva.hotelmanagement.user.domain;
+package io.github.mateussilva.hotelmanagement.people.domain;
 
 import io.github.mateussilva.hotelmanagement.shared.Email;
 import io.github.mateussilva.hotelmanagement.shared.doc.Generated;
-import io.github.mateussilva.hotelmanagement.user.domain.exception.InvalidPersonException;
+import io.github.mateussilva.hotelmanagement.people.domain.exception.InvalidPersonException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -58,6 +58,10 @@ public class Person {
 
     @Column
     private String mobileNumber;
+
+    @OneToOne(mappedBy = "person")
+    private Employee employee;
+
 
     @Generated
     private Person(String firstName, String surname, CPF document, LocalDate birthDate, Email email, String phoneNumber, String mobileNumber) {

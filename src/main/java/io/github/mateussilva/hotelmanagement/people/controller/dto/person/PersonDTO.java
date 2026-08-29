@@ -1,4 +1,4 @@
-package io.github.mateussilva.hotelmanagement.user.controller.dto;
+package io.github.mateussilva.hotelmanagement.people.controller.dto.person;
 
 import jakarta.validation.constraints.*;
 import org.hibernate.validator.constraints.br.CPF;
@@ -28,11 +28,9 @@ public record PersonDTO(
         @Email
         String email,
 
-        @NotBlank(message = "Campo requerido")
         @Size(min = 10, max = 10, message = "O número de telefone deve ter 10 digítos")
         String phoneNumber,
 
-        @NotBlank(message = "Campo requerido")
         @Size(min = 11, max = 11, message = "O número de celular deve ter 11 digítos")
         String mobileNumber
 ) { }

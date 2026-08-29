@@ -1,9 +1,9 @@
-package io.github.mateussilva.hotelmanagement.user.domain;
+package io.github.mateussilva.hotelmanagement.people.domain;
 
 import br.com.caelum.stella.validation.CPFValidator;
 import br.com.caelum.stella.validation.InvalidStateException;
 import io.github.mateussilva.hotelmanagement.shared.doc.Generated;
-import io.github.mateussilva.hotelmanagement.user.domain.exception.InvalidDocumentException;
+import io.github.mateussilva.hotelmanagement.people.domain.exception.InvalidDocumentException;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
 import lombok.Getter;

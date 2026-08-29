@@ -1,4 +1,4 @@
-package io.github.mateussilva.hotelmanagement.user.domain.exception;
+package io.github.mateussilva.hotelmanagement.people.domain.exception;
 
 import io.github.mateussilva.hotelmanagement.shared.exception.BusinessRulesException;
 
