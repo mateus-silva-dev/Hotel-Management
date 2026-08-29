@@ -50,6 +50,10 @@ public class ControllerExceptionHandler {
             return ResponseEntity.status(status)
                     .body(CustomError.of(status.value(), "Este documento já está cadastrado", request.getRequestURI()));
 
+        if (message.contains("uk_job_position_name"))
+            return ResponseEntity.status(status)
+                    .body(CustomError.of(status.value(), "Este cargo já está cadastrado", request.getRequestURI()));
+
         return ResponseEntity
                 .status(status)
                 .body(CustomError.of(status.value(), "Erro de integridade de dados", request.getRequestURI()));
