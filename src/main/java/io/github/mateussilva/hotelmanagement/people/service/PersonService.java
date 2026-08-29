@@ -44,9 +44,7 @@ public class PersonService {
 
     @Transactional
     public Person insert(PersonDTO dto) {
-        Person person = mapper.toEntity(dto);
-        repository.save(person);
-        return person;
+        return repository.save(mapper.toEntity(dto));
     }
 
     @Transactional
@@ -54,15 +52,15 @@ public class PersonService {
         Person person = repository.findEntityByUuid(uuid)
                 .orElseThrow(ResourceNotFoundException::new);
 
-        if (dto.newEmail() != null) {
-            Email email = new Email(dto.newEmail());
-            person.updateEmail(email);
-        }
-        if (dto.newPhoneNumber() != null)
-            person.updatePhoneNumber(dto.newPhoneNumber());
+        Optional.ofNullable(dto.newEmail())
+                .map(Email::new)
+                .ifPresent(person::updateEmail);
 
-        if (dto.newMobileNumber() != null)
-            person.updateMobileNumber(dto.newMobileNumber());
+        Optional.ofNullable(dto.newPhoneNumber())
+                .ifPresent(person::updatePhoneNumber);
+
+        Optional.ofNullable(dto.newMobileNumber())
+                .ifPresent(person::updateMobileNumber);
 
         return repository.save(person);
     }
@@ -70,13 +68,8 @@ public class PersonService {
     public Person findOrCreate(PersonDTO dto) {
         CPF cpf = new CPF(dto.document());
 
-        Optional<Person> person = repository.findByDocument(cpf);
-
-        if (person.isPresent())
-            return person.get();
-
-        Person newPerson = mapper.toEntity(dto);
-        return repository.save(newPerson);
+        return repository.findByDocument(cpf)
+                .orElseGet(() -> repository.save(mapper.toEntity(dto)));
     }
 
 }
