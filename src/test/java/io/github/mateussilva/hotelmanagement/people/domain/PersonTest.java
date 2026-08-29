@@ -1,9 +1,9 @@
-package io.github.mateussilva.hotelmanagement.user.domain;
+package io.github.mateussilva.hotelmanagement.people.domain;
 
 import io.github.mateussilva.hotelmanagement.shared.Email;
 import io.github.mateussilva.hotelmanagement.support.DomainAssertions;
-import io.github.mateussilva.hotelmanagement.user.domain.builder.PersonBuilder;
-import io.github.mateussilva.hotelmanagement.user.domain.exception.InvalidPersonException;
+import io.github.mateussilva.hotelmanagement.people.domain.builder.PersonBuilder;
+import io.github.mateussilva.hotelmanagement.people.domain.exception.InvalidPersonException;
 import net.datafaker.Faker;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

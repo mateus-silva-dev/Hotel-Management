@@ -1,4 +1,4 @@
-package io.github.mateussilva.hotelmanagement.user.controller;
+package io.github.mateussilva.hotelmanagement.people.controller;
 
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.BeforeEach;

@@ -1,18 +1,18 @@
-package io.github.mateussilva.hotelmanagement.user.service;
+package io.github.mateussilva.hotelmanagement.people.service;
 
-import io.github.mateussilva.hotelmanagement.shared.Email;
+import io.github.mateussilva.hotelmanagement.people.controller.dto.person.PersonDTO;
+import io.github.mateussilva.hotelmanagement.people.projections.PersonDetailsProjection;
+import io.github.mateussilva.hotelmanagement.people.projections.PersonMinProjection;
 import io.github.mateussilva.hotelmanagement.shared.exception.InvalidEmailException;
 import io.github.mateussilva.hotelmanagement.shared.exception.ResourceNotFoundException;
 import io.github.mateussilva.hotelmanagement.support.DomainAssertions;
-import io.github.mateussilva.hotelmanagement.user.controller.dto.PersonDTO;
-import io.github.mateussilva.hotelmanagement.user.controller.dto.PersonFilterDTO;
-import io.github.mateussilva.hotelmanagement.user.controller.dto.PersonUpdateDTO;
-import io.github.mateussilva.hotelmanagement.user.domain.CPF;
-import io.github.mateussilva.hotelmanagement.user.domain.Person;
-import io.github.mateussilva.hotelmanagement.user.domain.builder.PersonBuilder;
-import io.github.mateussilva.hotelmanagement.user.domain.exception.InvalidPersonException;
-import io.github.mateussilva.hotelmanagement.user.mapper.PersonMapper;
-import io.github.mateussilva.hotelmanagement.user.repository.PersonRepository;
+import io.github.mateussilva.hotelmanagement.people.controller.dto.person.PersonFilterDTO;
+import io.github.mateussilva.hotelmanagement.people.controller.dto.person.PersonUpdateDTO;
+import io.github.mateussilva.hotelmanagement.people.domain.Person;
+import io.github.mateussilva.hotelmanagement.people.domain.builder.PersonBuilder;
+import io.github.mateussilva.hotelmanagement.people.domain.exception.InvalidPersonException;
+import io.github.mateussilva.hotelmanagement.people.mapper.PersonMapper;
+import io.github.mateussilva.hotelmanagement.people.repository.PersonRepository;
 import net.datafaker.Faker;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -59,9 +59,11 @@ public class PersonServiceTest implements DomainAssertions {
 
     private final UUID uuidFake = UUID.randomUUID();
     private Person personFake;
+    private PersonDetailsProjection projectionFake;
 
     @BeforeEach
     void setUp() {
+        projectionFake = mock(PersonDetailsProjection.class);
         personFake = PersonBuilder.aPerson().withUuid(uuidFake).build();
     }
 
@@ -76,7 +78,7 @@ public class PersonServiceTest implements DomainAssertions {
             @Test
             @DisplayName("Given a valid UUID, it should successfully return a Person")
             void validFindByUuid() {
-                when(repository.findByUuid(uuidFake)).thenReturn(Optional.of(personFake));
+                when(repository.findDetailsByUuid(uuidFake)).thenReturn(Optional.of(projectionFake));
 
                 var person = service.findByUuid(uuidFake);
 
@@ -92,28 +94,27 @@ public class PersonServiceTest implements DomainAssertions {
             @DisplayName("It must return a Page containing all People, with the option to include search filters")
             void validFindAll() {
                 Pageable pageable = PageRequest.of(0, 5);
+
                 String name = faker.name().firstName();
                 String surname = faker.name().lastName();
-                CPF document = new CPF(faker.cpf().valid());
                 String email = faker.internet().emailAddress();
 
-                var filterFake = new PersonFilterDTO(name, surname, document, email);
+                var filterFake = new PersonFilterDTO(name, surname, email);
 
-                Person personFake = PersonBuilder.aPerson()
-                        .withFirstName(name)
-                        .withSurname(surname)
-                        .withDocument(document)
-                        .withEmail(new Email(email))
-                        .build();
+                PersonMinProjection projectionFake = mock(PersonMinProjection.class);
 
-                Page<Person> mockPage = new PageImpl<>(List.of(personFake), pageable, 1);
+                when(projectionFake.getFirstName()).thenReturn(name);
+                when(projectionFake.getSurname()).thenReturn(surname);
+                when(projectionFake.getEmail()).thenReturn(email);
 
-                when(repository.searchWithFilters(name, surname, document, email, pageable)).thenReturn(mockPage);
+                Page<PersonMinProjection> mockPage = new PageImpl<>(List.of(projectionFake), pageable, 1);
 
-                Page<Person> resultPage = service.findAll(filterFake, pageable);
+                when(repository.findAllMinWithFilters(name, surname, email, pageable)).thenReturn(mockPage);
+
+                Page<PersonMinProjection> resultPage = service.findAll(filterFake, pageable);
 
                 assertThat(resultPage).isNotNull().hasSize(1);
-                assertThat(resultPage.getContent().getFirst()).isEqualTo(personFake);
+                assertThat(resultPage.getContent().getFirst()).isEqualTo(projectionFake);
             }
 
         }
@@ -125,7 +126,7 @@ public class PersonServiceTest implements DomainAssertions {
             @Test
             @DisplayName("Given an invalid UUID, it should return an empty Optional")
             void invalidFindByUuid() {
-                when(repository.findByUuid(uuidFake)).thenReturn(Optional.empty());
+                when(repository.findDetailsByUuid(uuidFake)).thenReturn(Optional.empty());
 
                 assertThatException(
                         () -> service.findByUuid(uuidFake),
@@ -205,7 +206,7 @@ public class PersonServiceTest implements DomainAssertions {
 
                 var updateDtoFake = new PersonUpdateDTO(newEmail, phoneNumber, mobileNumber);
 
-                when(repository.findByUuid(uuidFake)).thenReturn(Optional.of(personFake));
+                when(repository.findEntityByUuid(uuidFake)).thenReturn(Optional.of(personFake));
 
                 when(repository.save(any(Person.class))).thenAnswer(i -> i.getArgument(0));
 
@@ -228,7 +229,7 @@ public class PersonServiceTest implements DomainAssertions {
 
                 var updateDtoFake = new PersonUpdateDTO(newEmail, null, null);
 
-                when(repository.findByUuid(uuidFake)).thenReturn(Optional.of(personFake));
+                when(repository.findEntityByUuid(uuidFake)).thenReturn(Optional.of(personFake));
 
                 when(repository.save(any(Person.class))).thenAnswer(i -> i.getArgument(0));
 
@@ -250,7 +251,7 @@ public class PersonServiceTest implements DomainAssertions {
 
                 var updateDtoFake = new PersonUpdateDTO(null, phoneNumber, null);
 
-                when(repository.findByUuid(uuidFake)).thenReturn(Optional.of(personFake));
+                when(repository.findEntityByUuid(uuidFake)).thenReturn(Optional.of(personFake));
 
                 when(repository.save(any(Person.class))).thenAnswer(i -> i.getArgument(0));
 
@@ -271,7 +272,7 @@ public class PersonServiceTest implements DomainAssertions {
 
                 var updateDtoFake = new PersonUpdateDTO(null ,null, mobileNumber);
 
-                when(repository.findByUuid(uuidFake)).thenReturn(Optional.of(personFake));
+                when(repository.findEntityByUuid(uuidFake)).thenReturn(Optional.of(personFake));
 
                 when(repository.save(any(Person.class))).thenAnswer(i -> i.getArgument(0));
 
@@ -298,7 +299,7 @@ public class PersonServiceTest implements DomainAssertions {
 
                 var updateDtoFake = new PersonUpdateDTO(invalidEmail, null, null);
 
-                when(repository.findByUuid(uuidFake)).thenReturn(Optional.of(personFake));
+                when(repository.findEntityByUuid(uuidFake)).thenReturn(Optional.of(personFake));
 
                 assertThatException(
                         () -> service.update(uuidFake, updateDtoFake),
@@ -315,7 +316,7 @@ public class PersonServiceTest implements DomainAssertions {
 
                 var updateDtoFake = new PersonUpdateDTO(null, phoneNumber, null);
 
-                when(repository.findByUuid(uuidFake)).thenReturn(Optional.of(personFake));
+                when(repository.findEntityByUuid(uuidFake)).thenReturn(Optional.of(personFake));
 
                 assertThatException(
                         () -> service.update(uuidFake, updateDtoFake),
@@ -332,7 +333,7 @@ public class PersonServiceTest implements DomainAssertions {
 
                 var updateDtoFake = new PersonUpdateDTO(null, null, mobileNumber);
 
-                when(repository.findByUuid(uuidFake)).thenReturn(Optional.of(personFake));
+                when(repository.findEntityByUuid(uuidFake)).thenReturn(Optional.of(personFake));
 
                 assertThatException(
                         () -> service.update(uuidFake, updateDtoFake),
